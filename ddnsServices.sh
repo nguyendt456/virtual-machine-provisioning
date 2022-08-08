@@ -68,8 +68,8 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
-if [[ -z "${USERNAME}" || -z "${PASSWORD}" ]]; then
-  echo -e "${FAIL_LOG}    Username and password of dynamic ddns credential is mandatory"
+if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${HOSTNAME}" ]]; then
+  echo -e "${FAIL_LOG}    Hostname, Username and password of dynamic ddns credential is mandatory"
   exit 1
 fi
 if [[ -z "${MODE}" ]]; then
@@ -97,12 +97,11 @@ fi
 if [[ "${MODE}" == "service" ]]; then
   while true
   do
-    PUBLIC_IP=$(curl https://ipinfo.io/ip)
-    curl --max-time 2 --connect-timeout 2 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOSTNAME}&myip=${PUBLIC_IP}"
-    sleep 2s
+    PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ipinfo.io/ip")
+    if [[ $? -ne 0 ]]; then
+      PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ifconfig.me")
+    fi
+    curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOSTNAME}&myip=${PUBLIC_IP}"
+    sleep 1s
   done
-fi
-while true
-
-
-  
+fi 

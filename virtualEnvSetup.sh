@@ -139,7 +139,7 @@ netplanInitialize () {
 echo -e "\n############ ${CYAN}SETTING UP ENVIRONMENT${NC} ############\n"
 validateEssentialVariable
 echo -e "${INFO_LOG}    Installing packages for virtual environment"
-message=$(sudo apt-get install -y qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils virtinst at > /dev/stderr)
+message=$(sudo apt-get install -y qemu-system-x86 libvirt-daemon-system libvirt-clients bridge-utils virtinst at gh > /dev/stderr)
 if [[ $? -ne 0 ]]; then
   echo -e "\n\n${FAIL_LOG}    Failed when install package"
   exit 1
