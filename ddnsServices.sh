@@ -94,6 +94,7 @@ WantedBy=multi-user.target\" \
   sudo systemctl status userddns.service
   exit 0  
 fi
+CACHED_IP=0
 if [[ "${MODE}" == "service" ]]; then
   while true
   do
@@ -101,7 +102,10 @@ if [[ "${MODE}" == "service" ]]; then
     if [[ $? -ne 0 ]]; then
       PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ifconfig.me")
     fi
-    curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOSTNAME}&myip=${PUBLIC_IP}"
+    if [[ "${CACHED_IP}" != "${PUBLIC_IP}" ]]; then
+      curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOSTNAME}&myip=${PUBLIC_IP}"
+      CACHED_IP=${PUBLIC_IP}
+    fi
     sleep 1s
   done
-fi 
+fi
