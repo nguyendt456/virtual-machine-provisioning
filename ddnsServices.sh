@@ -61,14 +61,14 @@ while [[ $# -gt 0 ]]; do
         echo -e "${FAIL_LOG}    $1 requires exactly 1 argument (hostname or domain name)"
         exit 1
       else
-        HOSTNAME=$2
+        HOST_NAME=$2
       fi
       shift
       shift
       ;;
   esac
 done
-if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${HOSTNAME}" ]]; then
+if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${HOST_NAME}" ]]; then
   echo -e "${FAIL_LOG}    Hostname, Username and password of dynamic ddns credential is mandatory"
   exit 1
 fi
@@ -83,7 +83,7 @@ if [[ -z "${MODE}" ]]; then
 Description=Dynamic DNS Service
 
 [Service]
-ExecStart=/usr/bin/${FILE_NAME} -m service -u ${USERNAME} -p ${PASSWORD} -h ${HOSTNAME}
+ExecStart=/usr/bin/${FILE_NAME} -m service -u ${USERNAME} -p ${PASSWORD} -h ${HOST_NAME}
 
 [Install]
 WantedBy=multi-user.target\" \
@@ -103,7 +103,7 @@ if [[ "${MODE}" == "service" ]]; then
       PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ifconfig.me")
     fi
     if [[ "${CACHED_IP}" != "${PUBLIC_IP}" ]]; then
-      curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOSTNAME}&myip=${PUBLIC_IP}"
+      curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOST_NAME}&myip=${PUBLIC_IP}"
       CACHED_IP=${PUBLIC_IP}
     fi
     sleep 1s
