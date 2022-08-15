@@ -38,6 +38,7 @@ case $1 in
     echo -e "    -u | --user           SSH user. User of the remote server"
     echo -e "    -k | --key-exchange   Set up key exchange for public key authentication (without password)"
     echo -e "         --help           Usage Guide"
+    exit 0
     ;;
   *)
     break
