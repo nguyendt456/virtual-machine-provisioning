@@ -66,6 +66,14 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    --help)
+      echo -e "*************${CYAN} USAGE ${NC}*************"
+      echo -e "    -h | --hostname    Hostname of the SSH remote server"
+      echo -e "    -u | --username    Username of the Dynamic DNS account"
+      echo -e "    -p | --password    Password of the Dynamic DNS account"
+      shift
+      exit 0
+      ;;
   esac
 done
 if [[ -z "${USERNAME}" || -z "${PASSWORD}" || -z "${HOST_NAME}" ]]; then
