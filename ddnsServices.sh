@@ -66,6 +66,15 @@ while [[ $# -gt 0 ]]; do
       shift
       shift
       ;;
+    -i | --ip-version)
+      if [[ -z "$2" ]]; then
+        IP_VERSION="ipv4"
+      else
+        IP_VERSION=$2
+      fi
+      shift
+      shift
+      ;;
     --help)
       echo -e "*************${CYAN} USAGE ${NC}*************"
       echo -e "    -h | --hostname    Hostname of the SSH remote server"
@@ -106,13 +115,23 @@ CACHED_IP=0
 if [[ "${MODE}" == "service" ]]; then
   while true
   do
-    PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ipinfo.io/ip")
-    if [[ $? -ne 0 ]]; then
-      PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ifconfig.me")
+    if [[ "${IP_VERSION}" == "ipv4" ]]; then
+      PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ipinfo.io/ip")
+      if [[ $? -ne 0 ]]; then
+        PUBLIC_IP=$(curl --max-time 1 --connect-timeout 0.5 "ifconfig.me")
+      fi
+    else
+      RAW_IPv6=$(ip a | grep inet6 | grep mngtmpaddr) # Format: inet6 xxxx:xxx:xxxx:xxxx:xxxx:xxx:xxxx:xxxx/64 scope global dynamic mngtmpaddr noprefixroute
+      IFS=" " read -a SPLIT_IPv6 <<< ${RAW_IPv6}      # Split format above to array
+      suffix="/64"
+      PUBLIC_IP=$(echo ${SPLIT_IPv6[1]%"$suffix"})
     fi
+    
     if [[ "${CACHED_IP}" != "${PUBLIC_IP}" ]]; then
       curl --max-time 1.5 --connect-timeout 0.5 "https://${USERNAME}:${PASSWORD}@domains.google.com/nic/update?hostname=${HOST_NAME}&myip=${PUBLIC_IP}"
-      CACHED_IP=${PUBLIC_IP}
+      if [[ $? -eq 0 ]]; then
+      	CACHED_IP=${PUBLIC_IP}
+      fi
     fi
     sleep 1s
   done
